@@ -1,0 +1,26 @@
+# 변경된 파일만 Lint/Format
+echo "🔍 Running lint-staged (with debug)..."
+npx lint-staged --debug || {
+  echo "❌ Lint-staged failed! Aborting commit."
+  exit 1
+}
+
+# 빌드 체크
+echo "🔨 Running build check..."
+if ! pnpm build; then
+  echo "❌ Build failed! Code is not deployable."
+  exit 1
+fi
+
+# 테스트
+if [ -f "package.json" ] && grep -q '"test"' package.json; then
+  echo "🧪 Running tests..."
+  if ! pnpm test; then
+    echo "❌ Tests failed!"
+    exit 1
+  fi
+else
+  echo "📝 No tests configured, skipping test step..."
+fi
+
+echo "✅ All checks passed! Ready for GitHub Flow 🎉"
